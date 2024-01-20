@@ -23,9 +23,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> getData() async {
-    setState(() {
-      isloading = true;
-    });
     final uri = Uri.parse(url);
     final response = await http.get(uri);
     if (response.statusCode == 200) {
@@ -58,31 +55,33 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.purpleAccent[100],
         label: const Text('Add'),
       ),
-      body:  Visibility(
-        replacement: const CircularProgressIndicator(),
-        child: RefreshIndicator(
-            onRefresh:()async{
-              setState(() {
-                getData();
-              });
-            },
-            child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  return ListTile(
-                    leading: CircleAvatar(
-                      child: Text('${index + 1}'),
-                    ),
-                    title: Text(item['title']),
-                    subtitle: Text(item['description']),
-                  );
-                }),
-          ),
+      body: Visibility(
+        visible: isloading,
+        replacement: RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+              isloading = !isloading;
+              getData();
+            });
+          },
+          child: ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return ListTile(
+                  leading: CircleAvatar(
+                    child: Text('${index + 1}'),
+                  ),
+                  title: Text(item['title']),
+                  subtitle: Text(item['description']),
+                );
+              }),
+        //child: 
+        ),
+        child: const Center(child: CircularProgressIndicator()),
       ),
-       
     );
   }
 }
